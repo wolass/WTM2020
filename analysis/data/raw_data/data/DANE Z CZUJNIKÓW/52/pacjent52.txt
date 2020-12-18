@@ -1,0 +1,4 @@
+Pacjent 52, czujnik nr 100174. 
+czujnik na pacjencie w okresie 23.11 godz. 16:32 - 26.11 godz.10:10 (dane z RedCap)
+
+Pobrałem dane z okresu 23.11 godz. 16:32 - 25.11 godz. 05:52 (dane z Postman)

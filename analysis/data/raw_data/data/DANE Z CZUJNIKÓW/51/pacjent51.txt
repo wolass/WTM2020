@@ -1,0 +1,4 @@
+Pacjent 51, czujnik nr 100183. 
+czujnik na pacjencie w okresie 23.11 godz. 15:58 - 26.11 godz.10:20 (dane z RedCap)
+
+PObrałem dane z okresu 23.11 godz. 15:58 - 24.11 godz. 21:26 (dane z Postman)
