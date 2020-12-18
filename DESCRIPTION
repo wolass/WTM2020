@@ -17,3 +17,5 @@ Imports: bookdown,
     here
 Suggests: devtools,
     git2r
+URL: https://github.com/wolass/WTM2020
+BugReports: https://github.com/wolass/WTM2020/issues
