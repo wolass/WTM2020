@@ -22,10 +22,6 @@ This repository contains the data and code for our paper:
 
 > Francuzik et al., (2021). _`r Title`_. Name of journal/book <https://doi.org/xxx/xxx>
 
-* The folder `1_data_cleaning` contains scripts and a final database used in subsequent data analysis (This can either be an Rmd file or a R script).
-* Exploratory data analysis is stored in the `2_EDA` folder (this should be a .Rmd file).
-* All exported objects from the EDA steps, as well as derived data, are stored in the `analysis/data/derived_data` folder
-* All other R scripts are going to be stored in the R folder
 
 <!-- Our pre-print is online here: -->
 
@@ -39,6 +35,12 @@ Please cite this compendium as:
 > Francuzik et al., (`r format(Sys.Date(), "%Y")`). _Compendium of R code and data for `r Title`_. Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx>
 
 ## Contents
+
+* The folder `1_data_cleaning` contains scripts and a final database used in subsequent data analysis (This can either be an Rmd file or a R script).
+* Exploratory data analysis is stored in the `2_EDA` folder (this should be a .Rmd file).
+* All exported objects from the EDA steps, as well as derived data, are stored in the `analysis/data/derived_data` folder
+* All other R scripts are going to be stored in the R folder
+
 
 The **analysis** directory contains:
 
@@ -82,7 +84,7 @@ You can download the compendium as a zip from from this URL:
 
 **Code :** See the [DESCRIPTION](DESCRIPTION) file
 
-**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
+**Data :** [CC-BY-4.0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
 
 ### Contributions
 

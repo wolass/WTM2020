@@ -4,17 +4,13 @@ graphics.off()
 #Load Hmisc library
 library(Hmisc)
 #Read Data
-data=read.csv('WTM2020_DATA_2020-12-16_1519.csv')
+data=read.csv('analysis/data/raw_data/data/WTM2020_DATA_2020-12-18_0612.csv')
 #Setting Labels
 
 label(data$record_id)="Record ID"
 label(data$redcap_event_name)="Event Name"
 label(data$redcap_data_access_group)="Data Access Group"
 label(data$visit_1_timestamp)="Survey Timestamp"
-label(data$subject_initials)="Subject Initials"
-label(data$patient_surname)="Patient surname"
-label(data$patient_name)="Patient name"
-label(data$pesel)="PESEL"
 label(data$gender)="Gender"
 label(data$diagnosis)="Diagnosis"
 label(data$surgery)="Expected surgery?"
@@ -370,3 +366,4 @@ levels(data$located.factor)=c("chest - armpit","wrist","thigh","arm")
 levels(data$comfort.factor)=c("very good","well","moderate","bad")
 levels(data$hospitalized_again.factor)=c("YES","NO")
 levels(data$usability_questionaire_for_patient_complete.factor)=c("Incomplete","Unverified","Complete")
+
