@@ -4,6 +4,8 @@ pacman::p_load(tidyverse, here)
 
 # Load data sets
 
+#tu powinien być skrypt
+
 # Perform data cleaning
 
 # Verify data integrity
