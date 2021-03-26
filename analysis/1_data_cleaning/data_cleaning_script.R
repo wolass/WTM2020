@@ -1,0 +1,15 @@
+# Load packages
+
+pacman::p_load(tidyverse, here)
+
+# Load data sets
+
+# Perform data cleaning
+
+# Verify data integrity
+
+# Add or remove variables
+
+# Export the data to here::here("analysis/data/derived_data/clean_df.Rmd")
+
+write_rds(final_df, here("analysis/data/derived_data/clean_df.Rmd"))

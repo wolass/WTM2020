@@ -7,24 +7,32 @@
 
 This repository contains the data and code for our paper:
 
-> Authors, (YYYY). *Title of your paper goes here*. Name of journal/book
+> Francuzik et al., (2021). *WTM2020: Validation of a continous skin
+> temperature monitor - WARMIE sensor*. Name of journal/book
 > <https://doi.org/xxx/xxx>
 
-Our pre-print is online here:
+<!-- Our pre-print is online here: -->
 
-> Authors, (YYYY). *Title of your paper goes here*. Name of
-> journal/book, Accessed 16 Dez 2020. Online at
-> <https://doi.org/xxx/xxx>
+<!-- > Authors, (YYYY). _WTM2020: Validation of a continous skin temperature monitor - WARMIE sensor_. Name of journal/book, Accessed 18 Dez 2020. Online at <https://doi.org/xxx/xxx> -->
 
 ### How to cite
 
 Please cite this compendium as:
 
-> Authors, (2020). *Compendium of R code and data for Title of your
-> paper goes here*. Accessed 16 Dez 2020. Online at
-> <https://doi.org/xxx/xxx>
+> Francuzik et al., (2020). *Compendium of R code and data for WTM2020:
+> Validation of a continous skin temperature monitor - WARMIE sensor*.
+> Accessed 18 Dez 2020. Online at <https://doi.org/xxx/xxx>
 
 ## Contents
+
+  - The folder `1_data_cleaning` contains scripts and a final database
+    used in subsequent data analysis (This can either be an Rmd file or
+    a R script).
+  - Exploratory data analysis is stored in the `2_EDA` folder (this
+    should be a .Rmd file).
+  - All exported objects from the EDA steps, as well as derived data,
+    are stored in the `analysis/data/derived_data` folder
+  - All other R scripts are going to be stored in the R folder
 
 The **analysis** directory contains:
 
@@ -71,7 +79,8 @@ packages this analysis depends on (also listed in the
 
 **Code :** See the [DESCRIPTION](DESCRIPTION) file
 
-**Data :** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/)
+**Data :**
+[CC-BY-4.0](http://creativecommons.org/publicdomain/zero/1.0/)
 attribution requested in reuse
 
 ### Contributions

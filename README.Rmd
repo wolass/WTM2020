@@ -16,6 +16,16 @@ Title <- "WTM2020: Validation of a continous skin temperature monitor - WARMIE s
 
 # WTM2020
 
+A clinical observational study to verify the feasibility of WARMIE sensor in continuous skin temperature monitoring in surgical patients. 
+
+# Introduction
+
+Continuous temperature monitoring has been previously described to provide many diagnostic benefits over standard temperature point-measurements. 
+
+# Aim
+Validation of clinical feasibility of using WARMIE Sensor in an inpatient-care environment. We aimed to verify the ease of use, reliability, comfort, and correctness of the continuous skin temperature monitoring device. 
+
+
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh///master?urlpath=rstudio)
 
 This repository contains the data and code for our paper:
@@ -52,8 +62,7 @@ The **analysis** directory contains:
   - [:file\_folder: data](/analysis/data): Data used in the analysis.
   - [:file\_folder: figures](/analysis/figures): Plots and other
     illustrations
-  - [:file\_folder:
-    supplementary-materials](/analysis/supplementary-materials):
+  - [:file\_folder: supplementary-materials](/analysis/supplementary-materials):
     Supplementary materials including notes and other documents
     prepared and collected during the analysis.
 
