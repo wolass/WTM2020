@@ -11,6 +11,42 @@ last <- df %>% filter(redcap_event_name=="end_of_study_visit_arm_1")
 
 # Describe the dataset in general. How many patients we have and what we see
 
+nrow(last)
+
+barplot_fun <- function(data,var,namex){
+  var <- enquo(var)
+  data <- data %>% rename(x=!!var)
+
+
+a <- data %>%
+  group_by(x) %>%
+  count() %>%
+  ggpubr::ggbarplot(
+    x = "x",
+    fill = "x",
+    y = "n",
+    label = TRUE, lab.col = "black", lab.vjust = 1.2,
+    position = position_dodge2(),
+    palette = get_palette(palette = "Oranges",5),
+  )+labs(x=namex,y="Proportion")+
+  font("xy.text", size = 10, color = "black")+
+  theme(legend.position = "none")
+
+
+a <- ggpar(a,
+               font.x = c(11, "bold"),
+               font.y = c(11, "bold"),
+               font.legend = c(9,"bold"))
+return(a)
+}
+barplot_fun(first,gender.factor,"Gender")
+barplot_fun(first,surgery.factor,"Surgery exptected?")
+barplot_fun(first,years_old,"Wiek")
+
+
+hist(df$years_old,ylim=c(0,20),col="lightblue",main = "Years old Histogram", xlab = "Years old")
+
+
 # Identify features that are indicative of attaching the sensor
 
 # Identify features that tell us about temperature change (increas decrease)

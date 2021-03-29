@@ -19,7 +19,11 @@ data = data[, colSums(is.na(data)) != nrow(data)]
 # Verify data integrity
 vis_miss(data)
 
-# Export the data to here::here("analysis/data/derived_data/clean_df.Rmd")
+# Export the data to here::here("analysis/data/derived_data/clean_df.Rds")
 
+<<<<<<< HEAD
 final_df <- data
 write_rds(final_df, here("analysis/data/raw_data/clean_df.Rds"))
+=======
+write_rds(final_df, here("analysis/data/derived_data/clean_df.Rds")) # we want to use RDS files instead of csv. 
+>>>>>>> f2a16b8bff29ee7bc461e5cfbed8638339ac6d6f
