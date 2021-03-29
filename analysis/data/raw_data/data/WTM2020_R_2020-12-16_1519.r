@@ -171,6 +171,48 @@ label(data$if_no)="If NO, please describe "
 label(data$usability_questionaire_for_patient_complete)="Complete?"
 #Setting Units
 
+#Duplicate constant values
+
+data <- data %>%
+  group_nest(record_id) %>%
+  mutate(birthdate2 = map(data,function(x){rep(x$birthdate[1],nrow(x))}),
+         gender2 = map(data,function(x){rep(x$gender[1],nrow(x))}),
+         rand2 = map(data,function(x){rep(x$random[1],nrow(x))}),
+         visit_1_complete2 = map(data,function(x){rep(x$visit_1_complete[1],nrow(x))}),
+         visit_2_complete2 = map(data,function(x){rep(x$visit_2_complete[2],nrow(x))}),
+         sensor_number2 = map(data,function(x){rep(x$sensor_number[1],nrow(x))}),
+         diagnosis2 = map(data,function(x){rep(x$diagnosis[1],nrow(x))})
+  ) %>%
+  unnest(cols = c(data, birthdate2,gender2,rand2,visit_1_complete2,visit_2_complete2,sensor_number2,diagnosis2))
+
+data <- data %>%
+  group_nest(record_id) %>%
+  mutate(good_condition2 = map(data,function(x){rep(x$good_condition[1],nrow(x))}),
+         no_skin_damage2 = map(data,function(x){rep(x$no_skin_damage[1],nrow(x))}),
+         no_skin_reaction2 = map(data,function(x){rep(x$no_skin_reaction[1],nrow(x))}),
+         loc_detail_in_out2 = map(data,function(x){rep(x$loc_detail_in_out[1],nrow(x))}),
+         located2 = map(data,function(x){rep(x$located[2],nrow(x))}),
+         temperature_patient_card_complete2 = map(data,function(x){rep(x$temperature_patient_card_complete[2],nrow(x))}),
+         sensor_number_v2_2 = map(data,function(x){rep(x$sensor_number_v2[2],nrow(x))})
+
+  ) %>%
+  unnest(cols = c(data, good_condition2,no_skin_damage2,no_skin_reaction2,loc_detail_in_out2,temperature_patient_card_complete2,located2,sensor_number_v2_2))
+
+data$gender <- data$gender2
+data$random <- data$rand2
+data$visit_1_complete <- data$visit_1_complete2
+data$visit_2_complete <- data$visit_2_complete2
+data$sensor_number <- data$sensor_number2
+data$diagnosis <- data$diagnosis2
+data$birthdate <- data$birthdate2
+data$good_condition <- data$good_condition2
+data$no_skin_damage <- data$no_skin_damage2
+data$no_skin_reaction <- data$no_skin_reaction2
+data$loc_detail_in_out <- data$loc_detail_in_out2
+data$located <- data$located2
+data$temperature_patient_card_complete <- data$temperature_patient_card_complete2
+data$sensor_number_v2 <- data$sensor_number_v2_2
+data = subset(data,select = -c(165:178))
 
 #Setting Factors(will create new variable for factors)
 data$redcap_event_name.factor = factor(data$redcap_event_name,levels=c("initial_visit_arm_1","end_of_study_visit_arm_1"))

@@ -3,9 +3,11 @@
 pacman::p_load(tidyverse, here, ggpubr)
 
 # Load data cleanded from 1_data_cleaning
-read_rds(here("analysis/data/raw_data/clean_df.Rds"))
-
+df <- read_rds(here("analysis/data/raw_data/clean_df.Rds"))
+first <- df %>% filter(redcap_event_name=="initial_visit_arm_1")
+last <- df %>% filter(redcap_event_name=="end_of_study_visit_arm_1")
 # Perform statistical description of the variables
+
 
 # Describe the dataset in general. How many patients we have and what we see
 
