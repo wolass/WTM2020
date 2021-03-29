@@ -6,6 +6,9 @@ pacman::p_load(tidyverse, here,devtools,naniar)
 
 # Nadpisalem w skrypcie zeby zmienne stale nadpisywaly NA np. dla gender
 source('analysis/data/raw_data/data/WTM2020_R_2020-12-16_1519.r')
+
+# Load Temperature data for each patient!
+
 # Perform data cleaning # Add or remove variables
 
 vis_miss(data)
@@ -21,9 +24,5 @@ vis_miss(data)
 
 # Export the data to here::here("analysis/data/derived_data/clean_df.Rds")
 
-<<<<<<< HEAD
 final_df <- data
 write_rds(final_df, here("analysis/data/raw_data/clean_df.Rds"))
-=======
-write_rds(final_df, here("analysis/data/derived_data/clean_df.Rds")) # we want to use RDS files instead of csv. 
->>>>>>> f2a16b8bff29ee7bc461e5cfbed8638339ac6d6f
