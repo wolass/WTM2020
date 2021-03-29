@@ -27,8 +27,11 @@ vis_miss(data)
 final_df <- data
 write_rds(final_df, here("analysis/data/raw_data/clean_df.Rds"))
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 write_rds(final_df, here("analysis/data/derived_data/clean_df.Rds")) # we want to use RDS files instead of csv.
 
+=======
+>>>>>>> 5612dbeaacd9e373ce7f2c34e93be96f1a3dea36
 =======
 >>>>>>> 5612dbeaacd9e373ce7f2c34e93be96f1a3dea36
