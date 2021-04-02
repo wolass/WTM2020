@@ -18,22 +18,17 @@ label(data$years_old)="Years old at first visit"
 data <- data %>% filter(!is.na(years_old))
 data = data[, colSums(is.na(data)) != nrow(data)]
 data <- as.data.frame(data)
-final_df$data <- data
 # Verify data integrity
 vis_miss(data)
 
 final_df$data <- data
 
 # JSONs
+folder <- here("analysis/data/raw_data/data/DANE Z CZUJNIKÓW/1. Wszystkie dane w formacie .json/")
 
-json_files <- list.files(path = "analysis/data/raw_data/data/DANE Z CZUJNIKÓW/1. Wszystkie dane w formacie .json/",pattern = "pacjent")
-for(i in length(json_files))
-{
-  setwd("analysis/data/raw_data/data/DANE Z CZUJNIKÓW/1. Wszystkie dane w formacie .json/")
-  json_data <- purrr::map(json_files, fromJSON)
-  setwd("../../../../../..")
-}
-names(json_data) <- json_files
+json_files <- paste0(folder,"/",list.files(path = folder,pattern = "pacjent"))
+
+json_data <- purrr::map(json_files, fromJSON)
 
 convert_fun <- function(nazwa){
   #value <- nazwa[ , grepl( "value" , names(nazwa) ) ]
@@ -43,20 +38,67 @@ convert_fun <- function(nazwa){
   #date <- t(date)
   #rownames(date) <- NULL
   #nazwa <- data.frame(date,value)
+
   nazwa <- nazwa %>% mutate(day = substr(time,9,10),
                             diff_value=value-lag(value),
                             location=ifelse(value>22,"skin","out"),
-                            clock=substr(time,12,19),
-                            condition=ifelse(diff_value < c(-0.15),"unstable","stable"))
-
+                            clock=substr(time,12,19) %>% as.ITime(),
+                            condition=ifelse(diff_value < c(-0.15),"unstable","stable"),
+                            clock=as.ITime(clock)
+                            )
 }
+names_json <- list.files(folder,pattern = "pacjent")
+names(json_data) <- names_json
+names(json_data) <- substr(names(json_data),8,9)
+names(json_data) <- as.numeric(names(json_data))
+names_json <- names(json_data)
+json_data <-  map(json_data,convert_fun)
 
-#convert na liscie
-for(i in json_files){
-  json_data[[i]] <- convert_fun(json_data[[i]])
-  json_data[[i]]$clock <- as.ITime(json_data[[i]]$clock)
+#COMPARE
+compare_fun <- function(pacjent){
+  compare_list <- list()
+  pacjent <- as.character(pacjent)
+
+comp <- json_data[[pacjent]]
+comp2 <- data %>% filter(record_id==pacjent,redcap_event_name=="end_of_study_visit_arm_1") %>% select(patient_temperature,
+                                                                                               patient_temperature_2,
+                                                                                               patient_temperature_3,
+                                                                                               patient_temperature_4,
+                                                                                               patient_temperature_5,
+                                                                                               patient_temperature_6)
+comp2 <- t(comp2) %>% as.data.frame()
+
+comp3 <- data %>% filter(record_id==pacjent,redcap_event_name=="end_of_study_visit_arm_1") %>% select(date_and_time_of_measure,
+                                                                                                date_and_time_of_measure_2,
+                                                                                                date_and_time_of_measure_3,
+                                                                                                date_and_time_of_measure_4,
+                                                                                                date_and_time_of_measure_5,
+                                                                                                date_and_time_of_measure_6)
+comp3 <- t(comp3)
+comp$time<- sub("Z", "",comp$time)
+comp$time <- sub("T", " ",comp$time)
+
+#comp <- as.data.frame(comp)
+comp3 <- ifelse(comp3=="",NA,paste0(comp3,":00"))
+comp4 <- cbind(comp3,comp2)
+colnames(comp4) <- c("time","standard")
+
+comp <- comp %>% filter(time %in% comp3) %>% select(time,value)
+comp <- merge(comp,comp4,by="time",all.x=T)
+#comp <- cbind(comp2,comp)
+#colnames(comp) <- c("standard","time","sensor")
+#comp <- comp %>% filter(!is.na(standard))
+compare_list$comp <- comp
+compare_list$comp2 <- comp2
+compare_list$comp3 <- comp3
+compare_list$comp4 <- comp4
+return(compare_list)
 }
-final_df$json_data <- json_data
+test <- compare_fun(11)$comp
+
+#zrobilem funckje, mam dwa problemy:
+#funckji nie da sie zaczytac purrem od razu na wszystkie, tylko recznie
+#mam inne godziny lub brakuje tych godzin kiedy byl pomiar zwyklym termometrem
 
 # Export the data to here::here("analysis/data/derived_data/clean_df.Rds")
 
