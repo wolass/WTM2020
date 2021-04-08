@@ -1,6 +1,6 @@
 # Load packages
 
-pacman::p_load(tidyverse, here,devtools,naniar,jsonlite,data.table,chron)
+pacman::p_load(tidyverse, here,devtools,naniar,jsonlite,data.table,chron,ggpubr)
 
 # Load data sets
 
@@ -38,13 +38,12 @@ convert_fun <- function(nazwa){
   #date <- t(date)
   #rownames(date) <- NULL
   #nazwa <- data.frame(date,value)
-
-  nazwa <- nazwa %>% mutate(day = substr(time,9,10),
+  nazwa <- nazwa %>% mutate(#day = substr(time,9,10) %>% as.integer(),
                             diff_value=value-lag(value),
                             location=ifelse(value>22,"skin","out"),
-                            clock=substr(time,12,19) %>% as.ITime(),
-                            condition=ifelse(diff_value < c(-0.15),"unstable","stable"),
-                            clock=as.ITime(clock)
+                            #clock=substr(time,12,19) %>% as.ITime(),
+                            condition=ifelse(diff_value < c(-0.15),"unstable","stable")#,
+                            #hour=substr(clock,1,2) %>% as.integer()
                             )
 }
 names_json <- list.files(folder,pattern = "pacjent")
@@ -88,8 +87,15 @@ compare_fun <- function(pacjent) {
                     )
   comp3 <- t(comp3)
   comp$time <-lubridate::as_datetime(comp$time, tz = "Europe/Berlin")
+  comp <- comp %>% mutate(clock=substr(time,12,19) %>% as.ITime(),
+                          day=substr(time,9,10) %>% as.integer(),
+                          hour=substr(clock,1,2) %>% as.integer())
+
+  plot <- ggline(data=comp,x="hour",y="value",add="mean_se",facet.by = "day") + scale_x_continuous(
+    breaks = get_breaks(by = 3, from = 0))
 
   comp <- as.data.frame(comp)
+  comp5 <- comp %>% summarise(min_temp=min(value,na.rm = T),mean_temp=mean(value,na.rm = T),sd_temp=sd(value,na.rm = T),max_temp=max(value,na.rm = T))
   comp3 <-lubridate::ymd_hm(comp3[,1],tz = "Europe/Berlin")
   comp3 <- comp3[!is.na(comp3)]
 
@@ -107,19 +113,21 @@ compare_fun <- function(pacjent) {
   comp4 <- as.data.frame(comp4)
   comp4$time <- lubridate::as_datetime(comp4$time,tz = "Europe/Berlin")
   colnames(comp) <- c("time2","value")
-  #comp <- distinct(comp)
+
   comp <- merge(comp, comp4, by = "time2",all.y=T) %>% distinct()
+  comp <- comp %>% mutate(diff_time = abs(difftime(time,time2,units="mins")))
+  comp <- comp %>% filter(diff_time<=5)
+  comp <- comp[,-5]
+
 
   compare_list$comp <- comp
-  compare_list$comp2 <- comp2
-  compare_list$comp3 <- comp3
-  compare_list$comp4 <- comp4
+  compare_list$comp_mean <- comp5
+  compare_list$plot <- plot
   return(compare_list)
 }
-test <- compare_fun("2")
+test <- compare_fun("14")
 
-
-output <- map(names(json_data) #%>% as.numeric, # zamiast obiektu na wejściu funcji podałeś liczbę.
+output <- map(names(json_data)
     ,compare_fun)
 names(output) <- names_json
 
