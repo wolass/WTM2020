@@ -55,6 +55,7 @@ json_data <-  map(json_data,convert_fun)
 names(json_data)[6] <- 14.5
 names(json_data)[28] <- 34.5
 names_json <- names(json_data)
+final_df$json_data <- json_data
 #COMPARE
 compare_fun <- function(pacjent) {
   compare_list <- list()
@@ -118,18 +119,29 @@ compare_fun <- function(pacjent) {
   comp <- comp %>% mutate(diff_time = abs(difftime(time,time2,units="mins")))
   comp <- comp %>% filter(diff_time<=5)
   comp <- comp[,-5]
+  comp <- comp %>% mutate(diff_value = abs(value-standard))
+  comp2 <- comp %>% summarise(mean=mean(diff_value,na.rm = T),sd_error=sd(diff_value,na.rm = T))
 
 
   compare_list$comp <- comp
   compare_list$comp_mean <- comp5
   compare_list$plot <- plot
+  compare_list$comp2 <- comp2
   return(compare_list)
 }
-test <- compare_fun("14")
+test <- compare_fun("2")
 
 output <- map(names(json_data)
     ,compare_fun)
 names(output) <- names_json
+
+mean_frame <- bind_rows(lapply(output, `[`, c(4)))
+mean_frame <- mean_frame$comp2
+mean_frame$sd_error[is.na(mean_frame$sd_error)] <- 0
+rownames(mean_frame) <- names_json
+final_df$mean_frame <- mean_frame
+
+final_df$output <- output
 
 # Export the data to here::here("analysis/data/derived_data/clean_df.Rds")
 
