@@ -30,27 +30,10 @@ json_files <- paste0(folder,"/",list.files(path = folder,pattern = "pacjent"))
 
 json_data <- purrr::map(json_files, fromJSON)
 
-convert_fun <- function(nazwa){
-  #value <- nazwa[ , grepl( "value" , names(nazwa) ) ]
-  #value <- t(value)
-  #rownames(value) <- NULL
-  #date <- nazwa[ , grepl( "time" , names(nazwa) ) ]
-  #date <- t(date)
-  #rownames(date) <- NULL
-  #nazwa <- data.frame(date,value)
-  nazwa <- nazwa %>% mutate(#day = substr(time,9,10) %>% as.integer(),
-                            diff_value=value-lag(value),
-                            location=ifelse(value>22,"skin","out"),
-                            #clock=substr(time,12,19) %>% as.ITime(),
-                            condition=ifelse(diff_value < c(-0.15),"unstable","stable")#,
-                            #hour=substr(clock,1,2) %>% as.integer()
-                            )
-}
 names_json <- list.files(folder,pattern = "pacjent")
 names(json_data) <- names_json
 names(json_data) <- substr(names(json_data),8,9)
 names(json_data) <- as.numeric(names(json_data))
-json_data <-  map(json_data,convert_fun)
 
 names(json_data)[6] <- 14.5
 names(json_data)[28] <- 34.5
@@ -59,7 +42,6 @@ final_df$json_data <- json_data
 #COMPARE
 compare_fun <- function(pacjent) {
   compare_list <- list()
-  #pacjent <- as.character(pacjent)
 
   comp <- json_data[[pacjent]]
   pacjent <- substr(pacjent,1,2)
@@ -90,7 +72,11 @@ compare_fun <- function(pacjent) {
   comp$time <-lubridate::as_datetime(comp$time, tz = "Europe/Berlin")
   comp <- comp %>% mutate(clock=substr(time,12,19) %>% as.ITime(),
                           day=substr(time,9,10) %>% as.integer(),
-                          hour=substr(clock,1,2) %>% as.integer())
+                          hour=substr(clock,1,2) %>% as.integer(),
+                          diff_value=value-lag(value),
+                          location=ifelse(value>22,"skin","out"),
+                          condition=ifelse(diff_value < c(-0.15),"unstable","stable"))
+  full_table <- comp
 
   plot <- ggline(data=comp,x="hour",y="value",add="mean_se",facet.by = "day") + scale_x_continuous(
     breaks = get_breaks(by = 3, from = 0))
@@ -127,6 +113,7 @@ compare_fun <- function(pacjent) {
   compare_list$comp_mean <- comp5
   compare_list$plot <- plot
   compare_list$comp2 <- comp2
+  compare_list$full_table <- full_table
   return(compare_list)
 }
 test <- compare_fun("2")

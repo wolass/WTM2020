@@ -1,6 +1,6 @@
 # Load packages
 
-pacman::p_load(tidyverse, here, ggpubr)
+pacman::p_load(tidyverse, here, ggpubr,chron,data.table)
 
 # Load data cleanded from 1_data_cleaning
 df <- read_rds(here("analysis/data/raw_data/clean_df.Rds"))
@@ -13,6 +13,7 @@ mean_frame <- df$mean_frame
 compare_frame <- bind_rows(lapply(output, `[`, c(2)))
 compare_frame <- compare_frame$comp_mean
 rownames(compare_frame) <- names(json_data)
+names_json <- names(json_data)
 final_df <- list()
 
 ## Perform statistical description of the variables
@@ -24,7 +25,25 @@ hist(end$patient_temperature_4,xlim=c(35,38),main="Fourth Measurment",xlab="Temp
 hist(end$patient_temperature_5,xlim=c(35,38),main="Fifth Measurment",xlab="Temperature")
 hist(end$patient_temperature_6,xlim=c(35,38),main="Sixth Measurment",xlab="Temperature")
 
+#Years old
 start %>% summarise(mean_age=mean(years_old))
+
+ggboxplot(start, "gender.factor", "years_old",
+      xlab="",ylab="Years Old",fill = "gender.factor",
+      palette = c("#00AFBB", "#E7B800"))+
+  theme(legend.position = "none")
+
+#Change placement
+start$change_placement_1 <- as.integer(start$change_placement_1)
+start %>%
+  group_by(gender.factor,change_placement_1.factor) %>%
+  count() %>% ggpubr::ggbarplot(
+    x = "gender.factor",
+    fill = "change_placement_1.factor",
+    y = "n",
+    label = TRUE, lab.col = "red", lab.vjust = 1.2,
+    position = position_fill(),palette = "Paired"
+    ) + labs(fill="Change placement?",y="Proportion",x="Gender")
 
 #no significant differences detected
 summary(aov(data=end,patient_temperature~random.factor))
@@ -42,6 +61,32 @@ summary(aov(data=end,patient_temperature_4~loc_detail_in_out.factor))
 summary(aov(data=end,patient_temperature_5~loc_detail_in_out.factor))
 summary(aov(data=end,patient_temperature_6~loc_detail_in_out.factor))
 
+ggarrange(
+  ggboxplot(end, "gender.factor", "patient_temperature",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_2",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_3",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_4",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_5",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_6",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"))
+
 #weird, second manual measurment significant difference between average temperatures
 summary(aov(data=end,patient_temperature~gender.factor))
 summary(aov(data=end,patient_temperature_2~gender.factor))
@@ -52,6 +97,48 @@ summary(aov(data=end,patient_temperature_6~gender.factor))
 
 
 ## Describe the dataset in general. How many patients we have and what we see
+
+daily_fun <- function(pacjent) {
+  daily <- output[[pacjent]]$full_table
+  daily <- daily %>% group_by(day) %>% summarise(mean_daily=mean(value,na.rm=T),sd_daily=sd(value,na.rm = T))
+  daily <- daily %>% as.data.frame()
+  return(daily)
+}
+daily_stats <- map(names_json,daily_fun)
+names(daily_stats) <- names_json
+daily_stats <- plyr::ldply(daily_stats, data.frame)
+daily_stats <- daily_stats %>% rename(id=.id)
+
+#Daily Mean, to find patients different from the norm
+
+daily_mean_plot <-ggarrange(
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(1:15),xlab="",ylab=""),
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(16:30),xlab="",ylab=""),
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(31:45),xlab="",ylab=""),
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(45:60),xlab="",ylab=""),ncol=1)
+annotate_figure(daily_mean_plot,
+                bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
+                left = text_grob("Mean of Daily Temperature", color = "black",face="bold", rot = 90))
+
+#Daily SD, to see the cyclicality of temperatures( if a large dispersion can be determined the absence of cyclicality)
+
+daily_sd_plot <-ggarrange(
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(1:15),xlab="",ylab=""),
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(16:30),xlab="",ylab=""),
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(31:45),xlab="",ylab=""),
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(45:60),xlab="",ylab=""),ncol=1)
+annotate_figure(daily_sd_plot,
+                bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
+                left = text_grob("SD of Daily Temperature", color = "black",face="bold", rot = 90))
+
 
 barplot_fun <- function(data,var,namex){
   var <- enquo(var)
