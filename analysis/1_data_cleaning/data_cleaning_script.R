@@ -106,6 +106,7 @@ compare_fun <- function(pacjent) {
   comp <- comp %>% filter(diff_time<=5)
   comp <- comp[,-5]
   comp <- comp %>% mutate(diff_value = abs(value-standard))
+  comp$id <- pacjent
   comp2 <- comp %>% summarise(mean=mean(diff_value,na.rm = T),sd_error=sd(diff_value,na.rm = T))
 
 

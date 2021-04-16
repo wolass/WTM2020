@@ -9,8 +9,11 @@ start <- data %>% filter(redcap_event_name=="initial_visit_arm_1")
 end <- data %>% filter(redcap_event_name=="end_of_study_visit_arm_1")
 output <- df$output
 json_data <- df$json_data
-mean_frame <- df$mean_frame
-compare_frame <- bind_rows(lapply(output, `[`, c(2)))
+mean_frame <- df$mean_frame # srednie różnice miedzy sensorem a manualem
+mean_frame$id <- rownames(mean_frame)
+comp <- bind_rows(lapply(output, `[`, c(1))) #wszystkie wartosci manual/sensor
+comp <- comp$comp
+compare_frame <- bind_rows(lapply(output, `[`, c(2))) # srednie temperatury sensora dla kazdego pacjenta(json)
 compare_frame <- compare_frame$comp_mean
 rownames(compare_frame) <- names(json_data)
 names_json <- names(json_data)
@@ -138,6 +141,22 @@ daily_sd_plot <-ggarrange(
 annotate_figure(daily_sd_plot,
                 bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
                 left = text_grob("SD of Daily Temperature", color = "black",face="bold", rot = 90))
+
+
+#Mean difference manual/sensor per patient
+
+mean_diff_plot <-ggarrange(
+  ggboxplot(comp, "id", "diff_value",
+            select = c(1:15),xlab="",ylab=""),
+  ggboxplot(comp, "id", "diff_value",
+            select = c(16:30),xlab="",ylab=""),
+  ggboxplot(comp, "id", "diff_value",
+            select = c(31:45),xlab="",ylab=""),
+  ggboxplot(comp, "id", "diff_value",
+            select = c(45:60),xlab="",ylab=""),ncol=1)
+annotate_figure(mean_diff_plot,
+                bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
+                left = text_grob("Difference Value", color = "black",face="bold", rot = 90))
 
 
 barplot_fun <- function(data,var,namex){
