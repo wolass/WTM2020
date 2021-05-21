@@ -92,7 +92,7 @@ compare_fun <- function(pacjent) {
   #comp <- as.data.frame(comp)
   #comp3 <- ifelse(comp3 == "", NA, paste0(comp3, ":00"))
   lubridate::ymd_hm(comp3[,1])
-  # tutaj rób dalej
+  # tutaj rób dale  j
 
   comp4 <- cbind(comp3, comp2)
   colnames(comp4) <- c("time", "standard")
