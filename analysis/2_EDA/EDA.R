@@ -1,17 +1,163 @@
 # Load packages
 
-pacman::p_load(tidyverse, here, ggpubr)
+pacman::p_load(tidyverse, here, ggpubr,chron,data.table)
 
 # Load data cleanded from 1_data_cleaning
 df <- read_rds(here("analysis/data/raw_data/clean_df.Rds"))
-first <- df %>% filter(redcap_event_name=="initial_visit_arm_1")
-last <- df %>% filter(redcap_event_name=="end_of_study_visit_arm_1")
-# Perform statistical description of the variables
+data <- df$data %>% filter(record_id %in% names(df$json_data))
+start <- data %>% filter(redcap_event_name=="initial_visit_arm_1")
+end <- data %>% filter(redcap_event_name=="end_of_study_visit_arm_1")
+output <- df$output
+json_data <- df$json_data
+mean_frame <- df$mean_frame # srednie różnice miedzy sensorem a manualem
+mean_frame$id <- rownames(mean_frame)
+comp <- bind_rows(lapply(output, `[`, c(1))) #wszystkie wartosci manual/sensor
+comp <- comp$comp
+compare_frame <- bind_rows(lapply(output, `[`, c(2))) # srednie temperatury sensora dla kazdego pacjenta(json)
+compare_frame <- compare_frame$comp_mean
+rownames(compare_frame) <- names(json_data)
+names_json <- names(json_data)
+final_df <- list()
+
+## Perform statistical description of the variables
+
+hist(end$patient_temperature,xlim=c(35,38),main="First Measurment",xlab="Temperature")
+hist(end$patient_temperature_2,xlim=c(35,38),main="Second Measurment",xlab="Temperature")
+hist(end$patient_temperature_3,xlim=c(35,38),main="Third Measurment",xlab="Temperature")
+hist(end$patient_temperature_4,xlim=c(35,38),main="Fourth Measurment",xlab="Temperature")
+hist(end$patient_temperature_5,xlim=c(35,38),main="Fifth Measurment",xlab="Temperature")
+hist(end$patient_temperature_6,xlim=c(35,38),main="Sixth Measurment",xlab="Temperature")
+
+#Years old
+start %>% summarise(mean_age=mean(years_old))
+
+ggboxplot(start, "gender.factor", "years_old",
+      xlab="",ylab="Years Old",fill = "gender.factor",
+      palette = c("#00AFBB", "#E7B800"))+
+  theme(legend.position = "none")
+
+#Change placement
+start$change_placement_1 <- as.integer(start$change_placement_1)
+start %>%
+  group_by(gender.factor,change_placement_1.factor) %>%
+  count() %>% ggpubr::ggbarplot(
+    x = "gender.factor",
+    fill = "change_placement_1.factor",
+    y = "n",
+    label = TRUE, lab.col = "red", lab.vjust = 1.2,
+    position = position_fill(),palette = "Paired"
+    ) + labs(fill="Change placement?",y="Proportion",x="Gender")
+
+#no significant differences detected
+summary(aov(data=end,patient_temperature~random.factor))
+summary(aov(data=end,patient_temperature_2~random.factor))
+summary(aov(data=end,patient_temperature_3~random.factor))
+summary(aov(data=end,patient_temperature_4~random.factor))
+summary(aov(data=end,patient_temperature_5~random.factor))
+summary(aov(data=end,patient_temperature_6~random.factor))
+
+#only last significant
+summary(aov(data=end,patient_temperature~loc_detail_in_out.factor))
+summary(aov(data=end,patient_temperature_2~loc_detail_in_out.factor))
+summary(aov(data=end,patient_temperature_3~loc_detail_in_out.factor))
+summary(aov(data=end,patient_temperature_4~loc_detail_in_out.factor))
+summary(aov(data=end,patient_temperature_5~loc_detail_in_out.factor))
+summary(aov(data=end,patient_temperature_6~loc_detail_in_out.factor))
+
+ggarrange(
+  ggboxplot(end, "gender.factor", "patient_temperature",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_2",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_3",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_4",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_5",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_6",
+            xlab="",ylab="Years Old",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"))
+
+#weird, second manual measurment significant difference between average temperatures
+summary(aov(data=end,patient_temperature~gender.factor))
+summary(aov(data=end,patient_temperature_2~gender.factor))
+summary(aov(data=end,patient_temperature_3~gender.factor))
+summary(aov(data=end,patient_temperature_4~gender.factor))
+summary(aov(data=end,patient_temperature_5~gender.factor))
+summary(aov(data=end,patient_temperature_6~gender.factor))
 
 
-# Describe the dataset in general. How many patients we have and what we see
+## Describe the dataset in general. How many patients we have and what we see
 
-nrow(last)
+daily_fun <- function(pacjent) {
+  daily <- output[[pacjent]]$full_table
+  daily <- daily %>% group_by(day) %>% summarise(mean_daily=mean(value,na.rm=T),sd_daily=sd(value,na.rm = T))
+  daily <- daily %>% as.data.frame()
+  return(daily)
+}
+daily_stats <- map(names_json,daily_fun)
+names(daily_stats) <- names_json
+daily_stats <- plyr::ldply(daily_stats, data.frame)
+daily_stats <- daily_stats %>% rename(id=.id)
+
+#Daily Mean, to find patients different from the norm
+
+daily_mean_plot <-ggarrange(
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(1:15),xlab="",ylab=""),
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(16:30),xlab="",ylab=""),
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(31:45),xlab="",ylab=""),
+ggboxplot(daily_stats, "id", "mean_daily",
+          select = c(45:60),xlab="",ylab=""),ncol=1)
+annotate_figure(daily_mean_plot,
+                bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
+                left = text_grob("Mean of Daily Temperature", color = "black",face="bold", rot = 90))
+
+#Daily SD, to see the cyclicality of temperatures( if a large dispersion can be determined the absence of cyclicality)
+
+daily_sd_plot <-ggarrange(
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(1:15),xlab="",ylab=""),
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(16:30),xlab="",ylab=""),
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(31:45),xlab="",ylab=""),
+  ggboxplot(daily_stats, "id", "sd_daily",
+            select = c(45:60),xlab="",ylab=""),ncol=1)
+annotate_figure(daily_sd_plot,
+                bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
+                left = text_grob("SD of Daily Temperature", color = "black",face="bold", rot = 90))
+
+
+#Mean difference manual/sensor per patient
+
+mean_diff_plot <-ggarrange(
+  ggboxplot(comp, "id", "diff_value",
+            select = c(1:15),xlab="",ylab=""),
+  ggboxplot(comp, "id", "diff_value",
+            select = c(16:30),xlab="",ylab=""),
+  ggboxplot(comp, "id", "diff_value",
+            select = c(31:45),xlab="",ylab=""),
+  ggboxplot(comp, "id", "diff_value",
+            select = c(45:60),xlab="",ylab=""),ncol=1)
+annotate_figure(mean_diff_plot,
+                bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
+                left = text_grob("Difference Value", color = "black",face="bold", rot = 90))
+
 
 barplot_fun <- function(data,var,namex){
   var <- enquo(var)
@@ -39,32 +185,106 @@ a <- ggpar(a,
                font.legend = c(9,"bold"))
 return(a)
 }
-barplot_fun(first,gender.factor,"Gender")
-barplot_fun(first,surgery.factor,"Surgery exptected?")
-barplot_fun(first,years_old,"Wiek")
+barplot_fun(start,gender.factor,"Gender")
+barplot_fun(start,surgery.factor,"Surgery exptected?")
+barplot_fun(end,comfort.factor,"Sensor WARMIE rate of comfortable")
+barplot_fun(start,random.factor,"Randomization group")
+
+hist(start$years_old,ylim=c(0,20),col="lightblue",main = "Years old Histogram", xlab = "Years old")
+
+mean_frame %>% summarise(mean=mean(mean,na.rm = T),sd_error=mean(sd_error))
+compare_frame %>% summarise(min=min(min_temp),max=max(max_temp),mean=mean(mean_temp),sd=mean(sd_temp))
 
 
-hist(df$years_old,ylim=c(0,20),col="lightblue",main = "Years old Histogram", xlab = "Years old")
+#The majority of patients do not have complete 6 observations compared to manual and sensory measurements. This is due to two conditions:
+#- not all patients had 6 manual measurements
+#- the nearest sensory measurement occurred at a distance of more than 5 minutes from the manual measurement
 
 
-# Identify features that are indicative of attaching the sensor
+## Identify features that are indicative of attaching the sensor
 
-# Identify features that tell us about temperature change (increas decrease)
 
-# Describe the temperature changes in time. What is daily difference sd and trend
 
-# Identify and compare if we can see patterns that are in multiple patients.
-# As an example I would as how many time the tempereature rose and wend down throught a day
+## Identify features that tell us about temperature change (increas decrease)
+
+
+
+## Describe the temperature changes in time. What is daily difference sd and trend
+
+
+
+## Identify and compare if we can see patterns that are in multiple patients.
+
+output[["10"]]$plot
+output[["11"]]$plot
+output[["12"]]$plot
+output[["13"]]$plot
+output[["14"]]$plot
+output[["14.5"]]$plot
+output[["15"]]$plot
+output[["16"]]$plot
+output[["17"]]$plot
+output[["18"]]$plot
+output[["19"]]$plot
+output[["2"]]$plot
+output[["20"]]$plot
+output[["21"]]$plot
+output[["22"]]$plot
+output[["24"]]$plot
+output[["25"]]$plot
+output[["26"]]$plot
+output[["27"]]$plot
+output[["28"]]$plot
+output[["29"]]$plot
+output[["3"]]$plot
+output[["30"]]$plot
+output[["31"]]$plot
+output[["32"]]$plot
+output[["33"]]$plot
+output[["34"]]$plot
+output[["34.5"]]$plot
+output[["35"]]$plot
+output[["36"]]$plot
+output[["37"]]$plot
+output[["38"]]$plot
+output[["4"]]$plot
+output[["40"]]$plot
+output[["41"]]$plot
+output[["42"]]$plot
+output[["44"]]$plot
+output[["45"]]$plot
+output[["46"]]$plot
+output[["47"]]$plot
+output[["48"]]$plot
+output[["49"]]$plot
+output[["5"]]$plot
+output[["50"]]$plot
+output[["51"]]$plot
+output[["52"]]$plot
+output[["53"]]$plot
+output[["55"]]$plot
+output[["56"]]$plot
+output[["57"]]$plot
+output[["6"]]$plot
+output[["7"]]$plot
+output[["8"]]$plot
+output[["9"]]$plot
+
+#During the day there is a certain patern, usually during the day temperatures were lower than evening/night.
+#In addition, the lowest values often occurred during wake-up hours.
+
+## As an example I would as how many time the tempereature rose and wend down throught a day
 # in a given patient.
 
-# Cheack feasability of SPECTRUM ANALYSIS in the analysis of time series data
 
-# Verify if the measurements from the Warmie sensor were similar to the measurements from the standard termometer
+## Cheack feasability of SPECTRUM ANALYSIS in the analysis of time series data
+
+## Verify if the measurements from the Warmie sensor were similar to the measurements from the standard termometer
 # Use Bland-Altman Plots here
 
-# Ideas? modelling? suggestions?
+## Ideas? modelling? suggestions?
 
-# Export the findings from each section in a Rds file for the paper.
+## Export the findings from each section in a Rds file for the paper.
 # to here::here("analysis/2_EDA/finding1_feature_extraction.Rmd")
 # These objects can follow such structure
 
@@ -76,4 +296,4 @@ finding <- list(
 
 
 
-write_rds(final_df, here("analysis/data/derived_data/clean_df.Rmd"))
+write_rds(final_df, here("analysis/data/raw_data/clean_df.Rds"))
