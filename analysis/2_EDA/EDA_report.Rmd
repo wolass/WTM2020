@@ -1,5 +1,14 @@
-# Load packages
+---
+title: "Raport z badania klinicznego WTM2020"
+author: "Dr. med. W. Francuzik"
+date: "25.05.2020"
+output: 
+    bookdown::word_document2:
+      fig_caption: yes
+---
 
+```{r}
+# Load packages
 pacman::p_load(tidyverse, here, ggpubr,chron,data.table)
 
 # Load data cleanded from 1_data_cleaning
@@ -19,15 +28,15 @@ rownames(compare_frame) <- names(json_data)
 names_json <- names(json_data)
 final_df <- list()
 
-## Perform statistical description of the variables
+```
 
-hist(end$patient_temperature,xlim=c(35,38),main="First Measurment",xlab="Temperature")
-hist(end$patient_temperature_2,xlim=c(35,38),main="Second Measurment",xlab="Temperature")
-hist(end$patient_temperature_3,xlim=c(35,38),main="Third Measurment",xlab="Temperature")
-hist(end$patient_temperature_4,xlim=c(35,38),main="Fourth Measurment",xlab="Temperature")
-hist(end$patient_temperature_5,xlim=c(35,38),main="Fifth Measurment",xlab="Temperature")
-hist(end$patient_temperature_6,xlim=c(35,38),main="Sixth Measurment",xlab="Temperature")
 
+# Demografia
+
+W badaniu wzięło udział `r length(data$record_id %>% unique())` pacjentów oddziału chirurgicznego, którzy po wyrażeniu pisemnej świadomej i poinformowanej zgody na badanie zostali wyposażeni w czujnik temperatury WARMIE umieszczony w jednej z predefiniowanych lokalizacji: a) ramię, b) nadgarstek, c) udo, d) klatka piersiowa. 
+
+
+```{r figagesex, fig.cap="Wiek i płeć pacjentów właczonych do badania."}
 #Years old
 start %>% summarise(mean_age=mean(years_old))
 
@@ -38,6 +47,51 @@ ggboxplot(start, "gender.factor", "years_old",
       add ="jitter")+
   theme(legend.position = "none")
 
+```
+
+
+
+## Pomiar termometrem referencyjnym
+U pacjentów przeprowadzono pomiar temperatury przy pomocy bezdotykowego termometra - pomiar na skroni, standard stosowany na oddziale chirurgicznym. Poniższe wykresy ilustrują rozkład pomiarów temperatury u tych pacjentów przy pomocy standardowego termometra.
+
+```{r}
+hist(breaks = 20,end$patient_temperature,xlim=c(35,38),main="First Measurment",xlab="Temperature")
+
+```
+
+Takich pomiarów termometrem referencyjnym wykonano między 3-6, co 12 godzin.  
+
+
+```{r}
+ggarrange(
+  ggboxplot(end, "gender.factor", "patient_temperature",
+            xlab="",ylab="Temp [C]",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_2",
+            xlab="",ylab="Temp [C]",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_3",
+            xlab="",ylab="Temp [C]",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_4",
+            xlab="",ylab="Temp [C]",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_5",
+            xlab="",ylab="Temp [C]",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"),
+  ggboxplot(end, "gender.factor", "patient_temperature_6",
+            xlab="",ylab="Temp [C]",fill = "gender.factor",
+            palette = c("#00AFBB", "#E7B800"))+
+    theme(legend.position = "none"))
+```
+
+
+<!--
 #Change placement
 start$change_placement_1 <- as.integer(start$change_placement_1)
 start %>%
@@ -66,31 +120,7 @@ summary(aov(data=end,patient_temperature_4~loc_detail_in_out.factor))
 summary(aov(data=end,patient_temperature_5~loc_detail_in_out.factor))
 summary(aov(data=end,patient_temperature_6~loc_detail_in_out.factor))
 
-ggarrange(
-  ggboxplot(end, "gender.factor", "patient_temperature",
-            xlab="",ylab="Years Old",fill = "gender.factor",
-            palette = c("#00AFBB", "#E7B800"))+
-    theme(legend.position = "none"),
-  ggboxplot(end, "gender.factor", "patient_temperature_2",
-            xlab="",ylab="Years Old",fill = "gender.factor",
-            palette = c("#00AFBB", "#E7B800"))+
-    theme(legend.position = "none"),
-  ggboxplot(end, "gender.factor", "patient_temperature_3",
-            xlab="",ylab="Years Old",fill = "gender.factor",
-            palette = c("#00AFBB", "#E7B800"))+
-    theme(legend.position = "none"),
-  ggboxplot(end, "gender.factor", "patient_temperature_4",
-            xlab="",ylab="Years Old",fill = "gender.factor",
-            palette = c("#00AFBB", "#E7B800"))+
-    theme(legend.position = "none"),
-  ggboxplot(end, "gender.factor", "patient_temperature_5",
-            xlab="",ylab="Years Old",fill = "gender.factor",
-            palette = c("#00AFBB", "#E7B800"))+
-    theme(legend.position = "none"),
-  ggboxplot(end, "gender.factor", "patient_temperature_6",
-            xlab="",ylab="Years Old",fill = "gender.factor",
-            palette = c("#00AFBB", "#E7B800"))+
-    theme(legend.position = "none"))
+
 
 #weird, second manual measurment significant difference between average temperatures
 summary(aov(data=end,patient_temperature~gender.factor))
@@ -100,7 +130,10 @@ summary(aov(data=end,patient_temperature_4~gender.factor))
 summary(aov(data=end,patient_temperature_5~gender.factor))
 summary(aov(data=end,patient_temperature_6~gender.factor))
 
+--> 
+# Pomiar czujnikiem Warmie
 
+```{r wszstkieczujniki, fig.height=8, fig.width=6, fig.cap="Średnia dzienna temperatura mierzona przez czujnik Warmie"}
 ## Describe the dataset in general. How many patients we have and what we see
 
 daily_fun <- function(pacjent) {
@@ -118,17 +151,28 @@ daily_stats <- daily_stats %>% rename(id=.id)
 
 daily_mean_plot <-ggarrange(
 ggboxplot(daily_stats, "id", "mean_daily",
-          select = c(1:15),xlab="",ylab=""),
+          select = c(1:15),xlab="",ylab="",
+          add = "jitter"),
 ggboxplot(daily_stats, "id", "mean_daily",
-          select = c(16:30),xlab="",ylab=""),
+          select = c(16:30),xlab="",ylab="",
+          add = "jitter"),
 ggboxplot(daily_stats, "id", "mean_daily",
-          select = c(31:45),xlab="",ylab=""),
+          select = c(31:45),xlab="",ylab="",
+          add = "jitter"),
 ggboxplot(daily_stats, "id", "mean_daily",
-          select = c(45:60),xlab="",ylab=""),ncol=1)
+          select = c(45:60),xlab="",ylab="",
+          add = "jitter"),ncol=1)
 annotate_figure(daily_mean_plot,
                 bottom = text_grob("Patient ID", color = "black", face = "bold", size = 12),
                 left = text_grob("Mean of Daily Temperature", color = "black",face="bold", rot = 90))
 
+```
+
+Na powyższym wykresie widać, że pomiary dobowe były spójne u większości pacjentów. U pacjenta 9, 26, 52, 56 średnie dobowe miały bardzo duży rozrzut i dlatego muszą zostać krytycznie zanalizowane. U tych pacjentów wachania w średnich dobowych polegają najprawdopodobniej na częstszym zdejmowaniu czujnika z miejsca pomiaru. 
+
+Poniżej wykres odchylenia standardowego w tych samych pomiarach.
+
+```{r fig.height = 7, fig.width=6}
 #Daily SD, to see the cyclicality of temperatures( if a large dispersion can be determined the absence of cyclicality)
 
 daily_sd_plot <-ggarrange(
@@ -145,6 +189,16 @@ annotate_figure(daily_sd_plot,
                 left = text_grob("SD of Daily Temperature", color = "black",face="bold", rot = 90))
 
 
+```
+
+# Różnice w pomiarach temp między warmie a termometrem referencyjnym
+
+Optymalnie różnice pomiarowe powinny być jak najnmniejsze. Widzimy na poniższym wykresie, że u niektórych pacjentów były one dramatycznie wysokie - co prawdopodobnie nie jest zależne od sensora warmie, lecz od nieprawidłowego udokumentowania czasu pomiaru przy pomocy termometra referencyjnego (lub braku umieszczenia czujnika Warmie na skórzy kiedy wykoanany został pomiar termometrem referencyjnym).
+
+Widzimy, że u pacjenta nr 52 różnica w pomiarach była jednorazowo ponad 30 stopni, co sugeruje że w momencie pomiaru czuujnik warmie nie był założony. 
+
+
+```{r diffplot, fig.cap="Różnice pomiarowe w pomiarach czujnika Warmie względem termometra referencyjnego. ", fig.height=7, fig.width=6}
 #Mean difference manual/sensor per patient
 
 mean_diff_plot <-ggarrange(
@@ -161,11 +215,13 @@ annotate_figure(mean_diff_plot,
                 left = text_grob("Difference Value", color = "black",face="bold", rot = 90))
 
 
+```
+
+
+```{r, fig.width= 6,fig.height=6}
 barplot_fun <- function(data,var,namex){
   var <- enquo(var)
   data <- data %>% rename(x=!!var)
-
-
 a <- data %>%
   group_by(x) %>%
   count() %>%
@@ -187,17 +243,22 @@ a <- ggpar(a,
                font.legend = c(9,"bold"))
 return(a)
 }
-barplot_fun(start,gender.factor,"Gender")
-barplot_fun(start,surgery.factor,"Surgery exptected?")
-barplot_fun(end,comfort.factor,"Sensor WARMIE rate of comfortable")
-barplot_fun(start,random.factor,"Randomization group")
 
-hist(start$years_old,ylim=c(0,20),col="lightblue",main = "Years old Histogram", xlab = "Years old")
+ggarrange(
+barplot_fun(start,gender.factor,"Gender"),
+barplot_fun(start,surgery.factor,"Surgery exptected?"),
+barplot_fun(end,comfort.factor,"Sensor WARMIE rate of comfortable"),
+barplot_fun(start,random.factor,"Randomization group"),
+labels = (LETTERS[1:4])
+)
 
-mean_frame %>% summarise(mean=mean(mean,na.rm = T),sd_error=mean(sd_error))
-compare_frame %>% summarise(min=min(min_temp),max=max(max_temp),mean=mean(mean_temp),sd=mean(sd_temp))
+
+```
 
 
+
+
+<!---
 #The majority of patients do not have complete 6 observations compared to manual and sensory measurements. This is due to two conditions:
 #- not all patients had 6 manual measurements
 #- the nearest sensory measurement occurred at a distance of more than 5 minutes from the manual measurement
@@ -216,83 +277,29 @@ compare_frame %>% summarise(min=min(min_temp),max=max(max_temp),mean=mean(mean_t
 
 
 ## Identify and compare if we can see patterns that are in multiple patients.
+-->
 
-output[["10"]]$plot
-output[["11"]]$plot
-output[["12"]]$plot
-output[["13"]]$plot
-output[["14"]]$plot
-output[["14.5"]]$plot
-output[["15"]]$plot
-output[["16"]]$plot
-output[["17"]]$plot
-output[["18"]]$plot
-output[["19"]]$plot
-output[["2"]]$plot
-output[["20"]]$plot
-output[["21"]]$plot
-output[["22"]]$plot
-output[["24"]]$plot
-output[["25"]]$plot
-output[["26"]]$plot
-output[["27"]]$plot
-output[["28"]]$plot
-output[["29"]]$plot
-output[["3"]]$plot
-output[["30"]]$plot
-output[["31"]]$plot
-output[["32"]]$plot
-output[["33"]]$plot
-output[["34"]]$plot
-output[["34.5"]]$plot
-output[["35"]]$plot
-output[["36"]]$plot
-output[["37"]]$plot
-output[["38"]]$plot
-output[["4"]]$plot
-output[["40"]]$plot
-output[["41"]]$plot
-output[["42"]]$plot
-output[["44"]]$plot
-output[["45"]]$plot
-output[["46"]]$plot
-output[["47"]]$plot
-output[["48"]]$plot
-output[["49"]]$plot
-output[["5"]]$plot
-output[["50"]]$plot
-output[["51"]]$plot
-output[["52"]]$plot
-output[["53"]]$plot
-output[["55"]]$plot
-output[["56"]]$plot
-output[["57"]]$plot
-output[["6"]]$plot
-output[["7"]]$plot
-output[["8"]]$plot
-output[["9"]]$plot
+# Wykresy pomiarowe u poszczególnych pacjentów 
 
-#During the day there is a certain patern, usually during the day temperatures were lower than evening/night.
-#In addition, the lowest values often occurred during wake-up hours.
+```{r}
+map(names(output),function(x){
+  output[[x]]$plot+
+    labs(title = paste0("Pat #", x))
+})
+```
 
-## As an example I would as how many time the tempereature rose and wend down throught a day
-# in a given patient.
+# Podsumowanie
+
+1. Na wykresach widoczne są dobowe wahania temperatury mierzonej przez sensor. 
+2. Temperatura podczas snu jest zwykle bardziej stabilna niż w dzień i lepiej nadaje się do monitorowania.
+3. Temperatura podczas godzin porannych jest zwykle najniższa, co może być spowodowane porannym uwalnianiem kortyzonu, który powoduje centralizcję krążenia i tym samym niższą temperaturę skóry. 
+
+# Następne kroki
+
+1. Następnym elementem analizy będzie zastosowanie algorytmów do automatycznej ekstrakcji zdarzeń (automatic feature extraction) z ciągłych pomiarów temperatury. 
+2. Weryfikacja użyteczości zastosowania metod analizy spectrum do oceny dobowych zmian temperatury.
+3. Próba predykcji temperatury rdzenia na podstawie temperatury skóry.
+4. Publikacja dancych w Journalu akademickim. 
 
 
-## Cheack feasability of SPECTRUM ANALYSIS in the analysis of time series data
-
-## Verify if the measurements from the Warmie sensor were similar to the measurements from the standard termometer
-# Use Bland-Altman Plots here
-
-## Ideas? modelling? suggestions?
-
-## Export the findings from each section in a Rds file for the paper.
-# to here::here("analysis/2_EDA/finding1_feature_extraction.Rmd")
-# These objects can follow such structure
-
-finding <- list(
-  data,
-  figures,
-  tables
-)
 
