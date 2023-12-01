@@ -111,7 +111,9 @@ local function create_correspondence_blocks(authors, mark)
       local mailto = 'mailto:' .. pandoc.utils.stringify(author.email)
       local author_with_mail = List:new(
         author.name .. List:new{pandoc.Space(),  pandoc.Str '<'} ..
-        author.email .. List:new{pandoc.Str '>'}
+        author.email .. List:new{pandoc.Str '>,', pandoc.Space()} ..
+        author.address .. List:new{pandoc.Str ',', pandoc.Space()} ..
+        author.telephone
       )
       local link = pandoc.Link(author_with_mail, mailto)
       table.insert(corresponding_authors, {link})

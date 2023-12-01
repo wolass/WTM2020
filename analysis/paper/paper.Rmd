@@ -1,17 +1,25 @@
 ---
-title: "Title Goes Here"
+title: "Reliability of continuous skin and body temperature measurement using a wireless wearable thermometer in a surgical inpatient unit"
 author:
-  - Myfirstname Mylastname:
-      email: fl@oneplace.edu
-      institute: [UofO]
-      correspondence: true
-  - Yourfirstname Yourlastname:
-      email: fl@another.edu
-      institute: [UofA]
-      correspondence: false
+  - name: "Wojciech Francuzik"
+    email: wojciech.francuzik@medigent.org
+    institute: [Charite]
+    correspondence: false
+    equal_contributor: true
+  - name: "Paweł Prociów"
+    email: prociow@gmail.com
+    institute: [Ins1]
+    correspondence: false
+    equal_contributor: true
+  - name: "Tomasz Banasiewicz"
+    email: tbanasiewicz@op.pl
+    institute: [Ins2]
+    correspondence: false
+    equal_contributor: true
 institute:
-  - UofO: University of One Place
-  - UofA: University of Another Place
+  - Charite: "Charité – Universitätsmedizin Berlin, corporate member of Freie Universität Berlin and Humboldt-Universität zu Berlin, Division of Allergy and Immunology, Department of Dermatology, Venereology and Allergology, Charitéplatz 1, 10117 Berlin, Germany"
+  - Ins1: "Afiliacja Pawła"
+  - Ins2: "Afiliacja Tomka"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: 
     bookdown::word_document2:
@@ -57,13 +65,89 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-Here is a citation [@Marwick2017]
+## Clinical need for temperature measurement in surgical patients 
 
-# Background
+## Background for continous temperature measurement in clinical situations
+
+## Aim:
+To investigate the measurement error of the Warmie sensor compared to a reference thermometer.
+Variables considered in the study: sensor location, user age, user gender
 
 # Methods
 
+## Data collection: 
+
+## Gathered during the WTM-2020 study, 
+
+## exported from RedCap, and organized for 
+
+## analysis.
+
+
+
 # Results
+
+## Descriptive Analysis
+
+### Information on the number of groups randomized, chosen based on the location of the sensor on the body
+
+### Comparison of Warmie sensor measurements
+
+### Analysis of observations from 48 patients
+
+### Comparison of point measurements of the reference thermometer with the average of Warmie measurements
+
+### Analysis of measurement error depending on age and sensor location
+
+### Median calculation for measurement differences between devices.
+
+### Application of calibration to improve measurement stability.
+
+### Results: No significant improvement in measurement stability for chest, thigh, or wrist placements.
+
+### Significant reduction in median error for measurements near the inner arm.
+
+### Increase in variance observed for measurements near the armpit, indicating reduced stability.
+
+
+### Suggested temperature adjustment
+
+####  Improvement in measurement accuracy
+#### Standard deviation of all observations
+#### Reduction in standard deviation after transformations
+
+# Discussion
+
+##  Discussion of the average error per patient
+
+## Why is the readout correction necessary?
+
+## literature review of other methods
+
+# Conclusion
+
+Best location for the Warmie sensor for measurement stability
+Possible adjustment of Warmie results and approximation of real temperature
+Error distribution with estimated standard deviation
+
+# Acknowledgements
+The device was provided by the company Warmie. The company had no influence on the study design, data collection, analysis, or interpretation of the results. The authors would like to thank the study nurses for their support in data collection.
+
+Wojciech Francuzik is the founder of Medigent and Warmie, and has a financial interest in the company. The other authors declare no conflict of interest.
+
+
+# Do usunięcia (zostwiam na razie dla przykładu) 
+
+\newpage
+
+# References 
+
+<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
+
+<div id="refs"></div>
+
+\newpage
+
 
 <!-- Here's some example analysis code: -->
 
@@ -88,19 +172,9 @@ Here is an example of inline code `r x` in the middle of a sentence.
 
 # Conclusion
 
-# Acknowledgements
 
 <!-- The following line inserts a page break  -->
 
-\newpage
-
-# References 
-
-<!-- The following line ensures the references appear here for the MS Word or HTML output files, rather than right at the end of the document (this will not work for PDF files):  -->
-
-<div id="refs"></div>
-
-\newpage
 
 ### Colophon
 
